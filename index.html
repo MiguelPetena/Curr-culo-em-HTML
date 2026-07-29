@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miguel Petená — Information Security</title>
+<meta name="description" content="Miguel Tadeu Teixeira Petená — Estudante de Segurança da Informação, IAM & SOC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0F1C;
+    --bg-alt:#0D1426;
+    --panel:#111A2E;
+    --panel-2:#0F1830;
+    --border:#1F2C47;
+    --text:#DCE4F2;
+    --text-dim:#7C8BAA;
+    --text-faint:#4C597A;
+    --info:#5AA9E6;
+    --warn:#F2A65A;
+    --crit:#E8555A;
+    --ok:#5FCB9B;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --sans:'IBM Plex Sans', system-ui, sans-serif;
+    --disp:'Space Grotesk', system-ui, sans-serif;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(90,169,230,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 100% 10%, rgba(242,166,90,0.06), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  ::selection{background:var(--warn); color:#0A0F1C;}
+  :focus-visible{outline:2px solid var(--warn); outline-offset:3px; border-radius:2px;}
+
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,15,28,0.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar .wrap{display:flex; align-items:center; justify-content:space-between; height:60px;}
+  .brand{font-family:var(--mono); font-size:14px; letter-spacing:0.02em; display:flex; align-items:center; gap:8px; text-decoration:none;}
+  .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--ok); box-shadow:0 0 8px var(--ok);}
+  .nav{display:flex; gap:28px; font-family:var(--mono); font-size:13px; color:var(--text-dim);}
+  .nav a{text-decoration:none; transition:color .15s;}
+  .nav a:hover{color:var(--warn);}
+  .nav-toggle{display:none; background:none; border:1px solid var(--border); color:var(--text); font-family:var(--mono); padding:6px 10px; border-radius:4px;}
+
+  @media (max-width:720px){
+    .nav{display:none;}
+    .nav-toggle{display:block;}
+    .nav.open{
+      display:flex; flex-direction:column; position:absolute; top:60px; left:0; right:0;
+      background:var(--bg-alt); padding:16px 24px; border-bottom:1px solid var(--border); gap:14px;
+    }
+  }
+
+  /* ---------- eyebrow / tag chips ---------- */
+  .tag{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.08em;
+    padding:3px 8px; border-radius:3px; border:1px solid currentColor;
+    text-transform:uppercase;
+  }
+  .tag.info{color:var(--info); background:rgba(90,169,230,0.08);}
+  .tag.warn{color:var(--warn); background:rgba(242,166,90,0.08);}
+  .tag.ok{color:var(--ok); background:rgba(95,203,155,0.08);}
+  .tag.crit{color:var(--crit); background:rgba(232,85,90,0.08);}
+
+  section{padding:96px 0;}
+  @media (max-width:720px){ section{padding:64px 0;} }
+  h2.section-title{
+    font-family:var(--disp); font-weight:600; font-size:clamp(24px,3.4vw,32px);
+    margin:0 0 8px;
+  }
+  .section-kicker{margin-bottom:14px;}
+  .section-lede{color:var(--text-dim); max-width:640px; margin:0 0 44px; font-size:15.5px;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:96px 0 72px;}
+  .terminal{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,0.6);
+  }
+  .terminal-head{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px; border-bottom:1px solid var(--border);
+    background:var(--panel-2);
+    font-family:var(--mono); font-size:12px; color:var(--text-faint);
+  }
+  .terminal-head .btns{display:flex; gap:6px; margin-right:8px;}
+  .terminal-head .btns span{width:10px; height:10px; border-radius:50%; display:inline-block;}
+  .b-r{background:#5b3a3c;} .b-y{background:#5c4f33;} .b-g{background:#33503f;}
+  .terminal-body{padding:22px 20px 26px; font-family:var(--mono); font-size:14px;}
+  .terminal-body .line{margin:0 0 6px; color:var(--text-dim); white-space:pre-wrap;}
+  .terminal-body .prompt{color:var(--ok);}
+  .terminal-body .path{color:var(--info);}
+  #typed-name{color:var(--text); font-weight:600;}
+  .cursor{display:inline-block; width:8px; height:16px; background:var(--warn); margin-left:2px; vertical-align:-3px; animation:blink 1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  .reduced-motion .cursor{animation:none;}
+
+  .hero-title{
+    font-family:var(--disp); font-weight:700;
+    font-size:clamp(34px, 6vw, 58px);
+    line-height:1.05; margin:28px 0 14px; letter-spacing:-0.01em;
+  }
+  .hero-title .accent{color:var(--warn);}
+  .hero-sub{color:var(--text-dim); font-size:17px; max-width:560px; margin:0 0 30px;}
+  .cta-row{display:flex; flex-wrap:wrap; gap:12px;}
+  .btn{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.02em;
+    padding:12px 20px; border-radius:6px; text-decoration:none;
+    border:1px solid var(--border); transition:all .15s ease;
+  }
+  .btn-primary{background:var(--warn); color:#0A0F1C; border-color:var(--warn); font-weight:600;}
+  .btn-primary:hover{background:#ffb86c; transform:translateY(-1px);}
+  .btn-ghost{color:var(--text); background:transparent;}
+  .btn-ghost:hover{border-color:var(--text-dim); color:var(--warn);}
+
+  /* ---------- log feed ticker ---------- */
+  .feed{
+    margin-top:56px; border:1px solid var(--border); border-radius:10px;
+    background:var(--panel); overflow:hidden;
+  }
+  .feed-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 16px; border-bottom:1px solid var(--border);
+    font-family:var(--mono); font-size:11px; color:var(--text-faint); letter-spacing:0.08em;
+  }
+  .feed-body{height:150px; overflow:hidden; position:relative;}
+  .feed-track{position:absolute; width:100%; animation:scrollFeed 18s linear infinite;}
+  .reduced-motion .feed-track{animation:none;}
+  @keyframes scrollFeed{ from{transform:translateY(0);} to{transform:translateY(-50%);} }
+  .feed-row{
+    display:flex; gap:12px; padding:8px 16px; font-family:var(--mono); font-size:12.5px;
+    border-bottom:1px dashed rgba(255,255,255,0.04); color:var(--text-dim);
+  }
+  .feed-row .ts{color:var(--text-faint); flex-shrink:0;}
+  .feed-row .sev{flex-shrink:0; width:52px;}
+
+  /* ---------- about ---------- */
+  .about-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:48px; align-items:start;}
+  @media (max-width:800px){ .about-grid{grid-template-columns:1fr;} }
+  .about-grid p{color:var(--text-dim); margin:0 0 16px;}
+  .about-grid strong{color:var(--text); font-weight:600;}
+  .stat-list{display:flex; flex-direction:column; gap:0; border:1px solid var(--border); border-radius:10px; overflow:hidden;}
+  .stat-row{display:flex; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); background:var(--panel);}
+  .stat-row:last-child{border-bottom:none;}
+  .stat-row .k{font-family:var(--mono); font-size:12px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.06em;}
+  .stat-row .v{font-size:14px; text-align:right;}
+
+  /* ---------- timeline (experience) ---------- */
+  .timeline{border-left:2px solid var(--border); margin-left:6px; padding-left:28px; display:flex; flex-direction:column; gap:40px;}
+  .tl-item{position:relative;}
+  .tl-item::before{
+    content:''; position:absolute; left:-34px; top:4px; width:11px; height:11px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--warn);
+  }
+  .tl-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; margin-bottom:6px;}
+  .tl-role{font-family:var(--disp); font-weight:600; font-size:19px;}
+  .tl-time{font-family:var(--mono); font-size:12px; color:var(--text-faint);}
+  .tl-org{color:var(--warn); font-size:14px; margin-bottom:10px; font-weight:500;}
+  .tl-item ul{margin:0; padding-left:18px; color:var(--text-dim); font-size:14.5px;}
+  .tl-item li{margin-bottom:5px;}
+
+  /* ---------- skills ---------- */
+  .skill-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px;}
+  @media (max-width:720px){ .skill-grid{grid-template-columns:1fr;} }
+  .skill-card{border:1px solid var(--border); border-radius:10px; padding:22px; background:var(--panel);}
+  .skill-card h3{
+    font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--text-faint); margin:0 0 14px; display:flex; align-items:center; gap:8px;
+  }
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    font-family:var(--mono); font-size:12.5px; padding:6px 10px; border-radius:5px;
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+  }
+
+  /* ---------- projects ---------- */
+  .proj-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+  @media (max-width:800px){ .proj-grid{grid-template-columns:1fr;} }
+  .proj-card{
+    border:1px solid var(--border); border-radius:10px; padding:24px; background:var(--panel);
+    display:flex; flex-direction:column; gap:12px; transition:border-color .15s, transform .15s;
+  }
+  .proj-card:hover{border-color:var(--warn); transform:translateY(-2px);}
+  .proj-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .proj-title{font-family:var(--disp); font-weight:600; font-size:17px;}
+  .proj-card p{margin:0; color:var(--text-dim); font-size:14px;}
+  .proj-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:8px;}
+  .proj-tags span{
+    font-family:var(--mono); font-size:11px; color:var(--text-faint);
+    border:1px solid var(--border); padding:3px 7px; border-radius:4px;
+  }
+
+  /* ---------- certifications ---------- */
+  .cert-list{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media (max-width:800px){ .cert-list{grid-template-columns:1fr 1fr;} }
+  @media (max-width:520px){ .cert-list{grid-template-columns:1fr;} }
+  .cert-item{
+    border:1px solid var(--border); border-radius:8px; padding:16px;
+    font-size:13.5px; color:var(--text-dim); background:var(--panel);
+  }
+  .cert-item strong{display:block; color:var(--text); font-size:14px; margin-bottom:3px;}
+
+  /* ---------- contact ---------- */
+  .contact-panel{
+    border:1px solid var(--border); border-radius:12px; background:var(--panel);
+    padding:40px; display:grid; grid-template-columns:1fr 1fr; gap:32px;
+  }
+  @media (max-width:720px){ .contact-panel{grid-template-columns:1fr; padding:28px;} }
+  .contact-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px;}
+  .contact-list li{display:flex; gap:12px; align-items:center; font-size:14.5px;}
+  .contact-list .k{font-family:var(--mono); font-size:11px; color:var(--text-faint); text-transform:uppercase; width:74px; flex-shrink:0;}
+  .contact-list a{text-decoration:none; border-bottom:1px dashed var(--text-faint);}
+  .contact-list a:hover{color:var(--warn); border-color:var(--warn);}
+
+  footer{border-top:1px solid var(--border); padding:32px 0; font-family:var(--mono); font-size:12px; color:var(--text-faint);}
+  footer .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+  .reduced-motion .reveal{opacity:1; transform:none; transition:none;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a href="#top" class="brand"><span class="dot"></span>miguel@petena:~</a>
+    <nav class="nav" id="nav">
+      <a href="#sobre">sobre</a>
+      <a href="#experiencia">experiência</a>
+      <a href="#skills">skills</a>
+      <a href="#projetos">projetos</a>
+      <a href="#certificacoes">certificações</a>
+      <a href="#contato">contato</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="nav">menu</button>
+  </div>
+</div>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="terminal">
+        <div class="terminal-head">
+          <span class="btns"><span class="b-r"></span><span class="b-y"></span><span class="b-g"></span></span>
+          sessão · SOC-analyst-training · bash
+        </div>
+        <div class="terminal-body">
+          <p class="line"><span class="prompt">miguel@fatec</span>:<span class="path">~</span>$ whoami</p>
+          <p class="line" id="typed-name"></p>
+          <p class="line"><span class="prompt">miguel@fatec</span>:<span class="path">~</span>$ cat status.log</p>
+          <p class="line" id="typed-status"></p>
+        </div>
+      </div>
+
+      <h1 class="hero-title">Segurança da<br>informação, do <span class="accent">log</span> à <span class="accent">defesa</span>.</h1>
+      <p class="hero-sub">Estudante de Segurança da Informação (FATEC São Caetano do Sul) com base prática em SOC e IAM — monitoramento SIEM, resposta a incidentes e gestão de identidades — construída em estágio, laboratórios próprios e bug bounty.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#contato">Falar comigo</a>
+        <a class="btn btn-ghost" href="#projetos">Ver projetos</a>
+        <a class="btn btn-ghost" href="curriculo-miguel-petena.pdf" id="cvLink" download="Curriculo-Miguel-Petena.pdf">Baixar currículo (PDF)</a>
+      </div>
+
+      <div class="feed">
+        <div class="feed-head"><span>siem_feed.log</span><span>tail -f · atualizando</span></div>
+        <div class="feed-body">
+          <div class="feed-track" id="feedTrack"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sobre">
+    <div class="wrap reveal">
+      <div class="tag info section-kicker">[ INFO ] sobre</div>
+      <h2 class="section-title">Da rede ao registro de eventos</h2>
+      <p class="section-lede">Formação técnica em desenvolvimento web e trajetória atual em segurança da informação, unindo infraestrutura, redes e análise de ameaças.</p>
+      <div class="about-grid">
+        <div>
+          <p>Sou <strong>Miguel Tadeu Teixeira Petená</strong>, baseado em Santo André – SP. Curso <strong>Segurança da Informação na FATEC São Caetano do Sul</strong> e tenho formação técnica anterior em <strong>Desenvolvimento Web pela ETEC Lauro Gomes</strong> — uma combinação que me dá conforto tanto para investigar um incidente quanto para entender a aplicação por trás dele.</p>
+          <p>Fiz estágio na <strong>Strong Security Brasil</strong>, atuando com IAM e SOC: monitoramento em SIEM, análise de logs, investigação de incidentes, administração de identidades com <strong>SailPoint</strong> e <strong>CyberArk/PAM</strong>, <strong>Active Directory</strong>, chamados via <strong>ServiceNow</strong> e ambientes multi-cloud.</p>
+          <p>Fora do expediente, mantenho o hábito de praticar em ambientes controlados: laboratórios de DNS e servidor de e-mail em Debian, cabeamento estruturado seguindo normas técnicas, e bug bounty em programas públicos como TikTok e Shopify no HackerOne.</p>
+        </div>
+        <div class="stat-list">
+          <div class="stat-row"><span class="k">Base</span><span class="v">Santo André, SP</span></div>
+          <div class="stat-row"><span class="k">Foco</span><span class="v">IAM · SOC · Blue Team</span></div>
+          <div class="stat-row"><span class="k">Formação</span><span class="v">Seg. da Informação — FATEC</span></div>
+          <div class="stat-row"><span class="k">Idiomas</span><span class="v">PT · EN · ES</span></div>
+          <div class="stat-row"><span class="k">Plataforma</span><span class="v">TryHackMe — ativo</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experiencia">
+    <div class="wrap reveal">
+      <div class="tag warn section-kicker">[ WARN ] histórico</div>
+      <h2 class="section-title">Experiência &amp; formação</h2>
+      <p class="section-lede">Registro cronológico — do mais recente ao mais antigo.</p>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-head">
+            <span class="tl-role">Estagiário IAM / SOC</span>
+            <span class="tl-time">Strong Security Brasil</span>
+          </div>
+          <div class="tl-org">Estágio concluído</div>
+          <ul>
+            <li>Monitoramento de eventos e alertas em ferramentas SIEM</li>
+            <li>Análise de logs e investigação de incidentes de segurança</li>
+            <li>Gestão de identidades e acessos com SailPoint e CyberArk/PAM</li>
+            <li>Administração de Active Directory e abertura/tratativa de chamados via ServiceNow</li>
+            <li>Suporte a operações em ambientes multi-cloud</li>
+          </ul>
+        </div>
+        <div class="tl-item">
+          <div class="tl-head">
+            <span class="tl-role">Segurança da Informação</span>
+            <span class="tl-time">Em andamento</span>
+          </div>
+          <div class="tl-org">FATEC São Caetano do Sul</div>
+          <ul>
+            <li>Coursework em governança de TI (COBIT, ITIL), perícia forense digital e análise de risco</li>
+            <li>Projetos aplicando NIST, OWASP, ISO 27002 e MITRE ATT&amp;CK a cenários reais</li>
+          </ul>
+        </div>
+        <div class="tl-item">
+          <div class="tl-head">
+            <span class="tl-role">Desenvolvimento Web</span>
+            <span class="tl-time">Concluído</span>
+          </div>
+          <div class="tl-org">ETEC Lauro Gomes</div>
+          <ul>
+            <li>Formação técnica com base em desenvolvimento de aplicações web</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="wrap reveal">
+      <div class="tag ok section-kicker">[ OK ] competências</div>
+      <h2 class="section-title">Stack de trabalho</h2>
+      <p class="section-lede">Ferramentas e frameworks usados no dia a dia de SOC, IAM, infraestrutura e testes de segurança.</p>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <h3>IAM &amp; Monitoramento SOC</h3>
+          <div class="chip-row">
+            <span class="chip">SIEM</span><span class="chip">SailPoint</span><span class="chip">CyberArk / PAM</span>
+            <span class="chip">Active Directory</span><span class="chip">ServiceNow</span><span class="chip">Multi-cloud</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <h3>Segurança ofensiva</h3>
+          <div class="chip-row">
+            <span class="chip">Burp Suite</span><span class="chip">Kali Linux</span><span class="chip">subfinder</span>
+            <span class="chip">httpx</span><span class="chip">Bug Bounty (HackerOne)</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <h3>Infraestrutura &amp; redes</h3>
+          <div class="chip-row">
+            <span class="chip">BIND9 (DNS)</span><span class="chip">Postfix / Dovecot</span><span class="chip">Linux</span>
+            <span class="chip">TCP/IP &amp; OSI</span><span class="chip">Cabeamento estruturado</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <h3>Frameworks &amp; governança</h3>
+          <div class="chip-row">
+            <span class="chip">NIST</span><span class="chip">OWASP</span><span class="chip">ISO 27002</span>
+            <span class="chip">MITRE ATT&amp;CK</span><span class="chip">COBIT</span><span class="chip">ITIL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projetos">
+    <div class="wrap reveal">
+      <div class="tag info section-kicker">[ INFO ] laboratórios</div>
+      <h2 class="section-title">Projetos práticos</h2>
+      <p class="section-lede">Coursework transformado em laboratório — cada projeto reproduz um cenário real de infraestrutura ou segurança.</p>
+      <div class="proj-grid">
+        <div class="proj-card">
+          <div class="proj-top"><span class="proj-title">Servidor de e-mail em Debian</span><span class="tag ok">lab</span></div>
+          <p>Stack completa com Postfix, Dovecot, SASL/saslauthd e PAM, com webmail via RainLoop. Inclui a resolução de um conflito de socket PAM/saslauthd dentro do chroot do Postfix.</p>
+          <div class="proj-tags"><span>Postfix</span><span>Dovecot</span><span>PAM</span><span>RainLoop</span></div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-top"><span class="proj-title">DNS Master/Slave com BIND9</span><span class="tag ok">lab</span></div>
+          <p>Réplicas de zona entre duas VMs Debian, com resolução de restrições do AppArmor, erros de zone file e conflitos de resolv.conf sobrescrito pelo DHCP.</p>
+          <div class="proj-tags"><span>BIND9</span><span>Debian</span><span>AppArmor</span></div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-top"><span class="proj-title">Análise de risco cibernético</span><span class="tag warn">acadêmico</span></div>
+          <p>Mapeamento de ameaças contra ativos específicos de uma fábrica de software, aplicando NIST, OWASP, ISO 27002 e MITRE ATT&amp;CK.</p>
+          <div class="proj-tags"><span>NIST</span><span>OWASP</span><span>MITRE ATT&amp;CK</span></div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-top"><span class="proj-title">Bug bounty — TikTok &amp; Shopify</span><span class="tag crit">offensive</span></div>
+          <p>Reconhecimento e testes em programas públicos no HackerOne, usando Burp Suite, subfinder e httpx em ambiente Kali Linux.</p>
+          <div class="proj-tags"><span>Burp Suite</span><span>Kali Linux</span><span>HackerOne</span></div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-top"><span class="proj-title">Rede doméstica estruturada</span><span class="tag info">infra</span></div>
+          <p>Projeto de cabeamento estruturado seguindo NBR 14565, com CAT6 em topologia estrela.</p>
+          <div class="proj-tags"><span>NBR 14565</span><span>CAT6</span><span>Topologia estrela</span></div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-top"><span class="proj-title">Automação de busca de vagas</span><span class="tag info">python</span></div>
+          <p>Ferramenta em Python que integra parsing de currículo, pontuação de aderência via API da Anthropic e geração automática de cartas de apresentação.</p>
+          <div class="proj-tags"><span>Python</span><span>Anthropic API</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="certificacoes">
+    <div class="wrap reveal">
+      <div class="tag ok section-kicker">[ OK ] credenciais</div>
+      <h2 class="section-title">Certificações &amp; prática contínua</h2>
+      <div class="cert-list">
+        <div class="cert-item"><strong>Cisco Networking Academy</strong>Certificados de conclusão de curso</div>
+        <div class="cert-item"><strong>TryHackMe</strong>Prática ativa em segurança ofensiva/defensiva</div>
+        <div class="cert-item"><strong>HackerOne</strong>Bug bounty — TikTok, Shopify</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato">
+    <div class="wrap reveal">
+      <div class="tag warn section-kicker">[ WARN ] canal aberto</div>
+      <h2 class="section-title">Vamos conversar</h2>
+      <p class="section-lede">Aberto a oportunidades em SOC, IAM, Blue Team e infraestrutura de redes.</p>
+      <div class="contact-panel">
+        <ul class="contact-list">
+          <li><span class="k">E-mail</span><a href="https://mail.google.com/mail/?view=cm&fs=1&to=miguelpetena2@gmail.com" target="_blank" rel="noopener">miguelpetena2@gmail.com</a></li>
+          <li><span class="k">Telefone</span><a href="tel:+5511967647291">(11) 96764-7291</a></li>
+          <li><span class="k">LinkedIn</span><a href="https://www.linkedin.com/in/miguel-peten%C3%A1-1315012b3/" target="_blank" rel="noopener">linkedin.com/in/miguel-petená</a></li>
+          <li><span class="k">GitHub</span><a href="https://github.com/MiguelPetena/MiguelPetena" target="_blank" rel="noopener">github.com/MiguelPetena</a></li>
+          <li><span class="k">TryHackMe</span><a href="https://tryhackme.com/p/migueltadex" target="_blank" rel="noopener">tryhackme.com/p/migueltadex</a></li>
+          <li><span class="k">Local</span><span>Santo André, SP</span></li>
+        </ul>
+        <div>
+          <p style="color:var(--text-dim); font-size:14px; margin:0 0 16px;">Prefere algo direto? Me chame e eu retorno o quanto antes.</p>
+          <a class="btn btn-primary" href="https://mail.google.com/mail/?view=cm&fs=1&to=miguelpetena2@gmail.com" target="_blank" rel="noopener">Enviar e-mail</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> Miguel Petená</span>
+    <span>build feita para Vercel · status: <span style="color:var(--ok)">online</span></span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(prefersReduced){ document.body.classList.add('reduced-motion'); }
+
+  // nav toggle (mobile)
+  const navToggle = document.getElementById('navToggle');
+  const nav = document.getElementById('nav');
+  navToggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', open);
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+
+  // typing effect
+  function typeLine(el, text, speed, done){
+    if(prefersReduced){ el.textContent = text; if(done) done(); return; }
+    let i = 0;
+    el.innerHTML = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    function step(){
+      el.textContent = text.slice(0, i);
+      el.appendChild(cursor);
+      i++;
+      if(i <= text.length){ setTimeout(step, speed); }
+      else if(done){ done(); }
+    }
+    step();
+  }
+  const nameEl = document.getElementById('typed-name');
+  const statusEl = document.getElementById('typed-status');
+  typeLine(nameEl, 'miguel — information security student · IAM & SOC', 28, () => {
+    typeLine(statusEl, '[OK] estágio IAM/SOC concluído · [OK] TryHackMe ativo · [INFO] disponível para novas oportunidades', 14);
+  });
+
+  // log feed
+  const feedData = [
+    ['09:14:02','INFO','auth: usuário miguel autenticado — SailPoint IAM'],
+    ['09:14:05','INFO','siem: coleta de eventos normalizada — 0 falsos positivos'],
+    ['09:14:11','WARN','pam: conflito de socket saslauthd resolvido em chroot Postfix'],
+    ['09:14:19','OK','dns: zona replicada com sucesso — BIND9 master/slave'],
+    ['09:14:27','INFO','cyberark: rotação de credenciais privilegiadas concluída'],
+    ['09:14:33','OK','bounty: relatório submetido — programa HackerOne'],
+    ['09:14:41','INFO','servicenow: chamado #4482 encerrado — SLA cumprido'],
+    ['09:14:49','OK','risco: matriz de ameaças mapeada — NIST / MITRE ATT&CK'],
+  ];
+  const sevColor = { INFO:'var(--info)', WARN:'var(--warn)', OK:'var(--ok)', CRIT:'var(--crit)' };
+  const track = document.getElementById('feedTrack');
+  const rowsHtml = feedData.map(([ts,sev,msg]) => `
+    <div class="feed-row">
+      <span class="ts">${ts}</span>
+      <span class="sev" style="color:${sevColor[sev]}">[${sev}]</span>
+      <span>${msg}</span>
+    </div>`).join('');
+  track.innerHTML = rowsHtml + rowsHtml; // duplicated for seamless loop
+
+  // scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('in'); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
