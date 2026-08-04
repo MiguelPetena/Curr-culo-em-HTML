@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+.next/
+.vercel/
+.turbo/
+out/
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Build info
+*.tsbuildinfo
+.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

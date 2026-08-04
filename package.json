@@ -1,0 +1,15 @@
+{
+  "name": "curriculo-miguelpetena",
+  "version": "1.0.0",
+  "description": "Miguel Petená's Information Security Resume/CV",
+  "scripts": {
+    "build": "echo 'Static HTML project - no build step required'",
+    "test": "echo 'No tests configured'"
+  },
+  "keywords": ["resume", "cv", "portfolio"],
+  "author": "Miguel Tadeu Teixeira Petená",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}
